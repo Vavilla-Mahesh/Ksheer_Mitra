@@ -550,16 +550,44 @@ Returns all customers with GPS coordinates for map view.
 ### List Products
 **Endpoint:** `GET /admin/products`
 
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Full Cream Milk",
+      "description": "Fresh full cream milk",
+      "category": "Dairy Products",
+      "unit": "liter",
+      "pricePerUnit": "60.00",
+      "stock": 1000,
+      "imageUrl": "/uploads/products/product-123.jpg",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Accessing Product Images:**
+Product images are served as static files at: `http://localhost:3000/uploads/products/filename.jpg`
+
 ---
 
 ### Create Product
 **Endpoint:** `POST /admin/products`
 
-**Request Body:**
+**DEPRECATED: Use the multipart/form-data version below for image uploads**
+
+**Request Body (JSON - without image):**
 ```json
 {
   "name": "Product Name",
   "description": "Product description",
+  "category": "Product Category",
   "unit": "liter",
   "pricePerUnit": 60.00,
   "stock": 1000
@@ -573,10 +601,13 @@ Returns all customers with GPS coordinates for map view.
 ### Update Product
 **Endpoint:** `PUT /admin/products/:id`
 
-**Request Body:**
+**DEPRECATED: Use the multipart/form-data version below for image uploads**
+
+**Request Body (JSON - without image):**
 ```json
 {
   "name": "Updated Name",
+  "category": "Updated Category",
   "pricePerUnit": 65.00,
   "isActive": true
 }
@@ -591,6 +622,381 @@ Returns all customers with GPS coordinates for map view.
 - `startDate` (optional): YYYY-MM-DD
 - `endDate` (optional): YYYY-MM-DD
 - `deliveryBoyId` (optional): Filter by delivery boy
+
+---
+
+### Create Product (with Image Upload)
+**Endpoint:** `POST /admin/products`
+
+**Content-Type:** `multipart/form-data`
+
+**Form Fields:**
+- `name` (required): Product name (2-100 characters)
+- `description` (optional): Product description
+- `category` (optional): Product category (2-100 characters)
+- `unit` (required): Unit of measurement (`liter`, `ml`, `kg`, `gm`, `piece`)
+- `pricePerUnit` (required): Price per unit (positive decimal)
+- `stock` (optional): Initial stock quantity (non-negative integer)
+- `image` (optional): Product image file (JPEG, PNG, GIF, WebP, max 5MB)
+
+**Example cURL:**
+```bash
+curl -X POST http://localhost:3000/api/admin/products \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "name=Organic Milk" \
+  -F "description=Fresh organic milk" \
+  -F "category=Dairy Products" \
+  -F "unit=liter" \
+  -F "pricePerUnit=70" \
+  -F "stock=500" \
+  -F "image=@/path/to/image.jpg"
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Product created successfully",
+  "data": {
+    "id": "uuid",
+    "name": "Organic Milk",
+    "description": "Fresh organic milk",
+    "category": "Dairy Products",
+    "unit": "liter",
+    "pricePerUnit": "70.00",
+    "stock": 500,
+    "imageUrl": "/uploads/products/product-1234567890-123456789.jpg",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
+---
+
+### Update Product (with Image Upload)
+**Endpoint:** `PUT /admin/products/:id`
+
+**Content-Type:** `multipart/form-data`
+
+**Form Fields:**
+All fields are optional. Include only the fields you want to update.
+- `name`: Product name
+- `description`: Product description
+- `category`: Product category
+- `unit`: Unit of measurement
+- `pricePerUnit`: Price per unit
+- `stock`: Stock quantity
+- `isActive`: Active status (true/false)
+- `image`: New product image (replaces existing image)
+
+**Example cURL:**
+```bash
+curl -X PUT http://localhost:3000/api/admin/products/uuid \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "pricePerUnit=75" \
+  -F "image=@/path/to/new-image.jpg"
+```
+
+---
+
+### Get All Subscriptions
+**Endpoint:** `GET /admin/subscriptions`
+
+**Query Parameters:**
+- `page` (optional, default: 1): Page number
+- `limit` (optional, default: 50, max: 100): Items per page
+- `status` (optional): Filter by status (`active`, `paused`, `cancelled`, `completed`)
+- `customerId` (optional): Filter by customer UUID
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "subscriptions": [
+      {
+        "id": "subscription-uuid",
+        "customer": {
+          "id": "customer-uuid",
+          "name": "Customer Name",
+          "phone": "+919876543210",
+          "email": "customer@example.com",
+          "address": "123 Main St"
+        },
+        "product": {
+          "id": "product-uuid",
+          "name": "Full Cream Milk",
+          "unit": "liter",
+          "pricePerUnit": "60.00",
+          "category": "Dairy Products",
+          "imageUrl": "/uploads/products/product-123.jpg"
+        },
+        "quantity": "1.00",
+        "frequency": "daily",
+        "selectedDays": [1, 2, 3, 4, 5],
+        "startDate": "2024-01-01",
+        "endDate": "2024-12-31",
+        "status": "active",
+        "pauseStartDate": null,
+        "pauseEndDate": null,
+        "estimatedMonthlyAmount": 1800.00,
+        "createdAt": "2024-01-01T00:00:00.000Z",
+        "updatedAt": "2024-01-01T00:00:00.000Z"
+      }
+    ],
+    "pagination": {
+      "total": 150,
+      "page": 1,
+      "limit": 50,
+      "totalPages": 3
+    }
+  }
+}
+```
+
+---
+
+### Generate Monthly Invoice for Customer
+**Endpoint:** `POST /admin/invoices/generate-monthly`
+
+**Request Body:**
+```json
+{
+  "customerId": "customer-uuid",
+  "year": 2024,
+  "month": 1
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Monthly invoice generated successfully",
+  "data": {
+    "id": "invoice-uuid",
+    "invoiceNumber": "INV-M-202401-12345678",
+    "customerId": "customer-uuid",
+    "type": "monthly",
+    "invoiceDate": "2024-02-01",
+    "periodStart": "2024-01-01",
+    "periodEnd": "2024-01-31",
+    "totalAmount": "1860.00",
+    "paidAmount": "0.00",
+    "paymentStatus": "pending",
+    "pdfPath": "/path/to/invoice.pdf",
+    "sentViaWhatsApp": true,
+    "sentAt": "2024-02-01T00:00:00.000Z",
+    "deliveryDetails": {
+      "deliveries": [
+        {
+          "date": "01-01-2024",
+          "productName": "Full Cream Milk",
+          "quantity": "1.00",
+          "unit": "liter",
+          "amount": "60.00"
+        }
+      ]
+    }
+  }
+}
+```
+
+---
+
+### Generate Monthly Invoices for All Customers
+**Endpoint:** `POST /admin/invoices/generate-all-monthly`
+
+Generates monthly invoices for all active customers. This is a long-running operation.
+
+**Request Body:**
+```json
+{
+  "year": 2024,
+  "month": 1
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Monthly invoice generation completed",
+  "data": {
+    "total": 150,
+    "generated": 145,
+    "failed": 5,
+    "errors": [
+      {
+        "customerId": "customer-uuid",
+        "customerName": "Customer Name",
+        "error": "No deliveries found for the specified period"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### Get Customer Invoices
+**Endpoint:** `GET /admin/customers/:customerId/invoices`
+
+**Query Parameters:**
+- `type` (optional): Filter by type (`daily`, `monthly`)
+- `paymentStatus` (optional): Filter by status (`pending`, `partial`, `paid`)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "invoice-uuid",
+      "invoiceNumber": "INV-M-202401-12345678",
+      "customerId": "customer-uuid",
+      "customer": {
+        "id": "customer-uuid",
+        "name": "Customer Name",
+        "phone": "+919876543210",
+        "email": "customer@example.com",
+        "address": "123 Main St"
+      },
+      "type": "monthly",
+      "invoiceDate": "2024-02-01",
+      "periodStart": "2024-01-01",
+      "periodEnd": "2024-01-31",
+      "totalAmount": "1860.00",
+      "paidAmount": "500.00",
+      "paymentStatus": "partial",
+      "pdfPath": "/path/to/invoice.pdf",
+      "sentViaWhatsApp": true,
+      "sentAt": "2024-02-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### Mark Invoice as Paid
+**Endpoint:** `POST /admin/invoices/:invoiceId/mark-paid`
+
+Record a payment for an invoice. Can be called multiple times to record partial payments.
+
+**Request Body:**
+```json
+{
+  "paidAmount": 500.00
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Payment recorded successfully",
+  "data": {
+    "id": "invoice-uuid",
+    "invoiceNumber": "INV-M-202401-12345678",
+    "totalAmount": "1860.00",
+    "paidAmount": "500.00",
+    "paymentStatus": "partial"
+  }
+}
+```
+
+**Payment Status Logic:**
+- `pending`: paidAmount = 0
+- `partial`: 0 < paidAmount < totalAmount
+- `paid`: paidAmount >= totalAmount
+
+---
+
+### Carry Forward Dues
+**Endpoint:** `POST /admin/invoices/carry-forward-dues`
+
+Creates a new invoice for the specified month that includes all pending dues from previous months.
+
+**Request Body:**
+```json
+{
+  "customerId": "customer-uuid",
+  "year": 2024,
+  "month": 2
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Dues carried forward successfully",
+  "data": {
+    "invoice": {
+      "id": "invoice-uuid",
+      "invoiceNumber": "INV-M-202402-12345678",
+      "customerId": "customer-uuid",
+      "type": "monthly",
+      "invoiceDate": "2024-03-01",
+      "periodStart": "2024-02-01",
+      "periodEnd": "2024-02-29",
+      "totalAmount": "3220.00",
+      "paidAmount": "0.00",
+      "paymentStatus": "pending",
+      "deliveryDetails": {
+        "deliveries": [],
+        "currentMonthAmount": 1860.00,
+        "previousDues": 1360.00,
+        "totalAmount": 3220.00
+      }
+    },
+    "previousDues": 1360.00,
+    "currentMonthAmount": 1860.00,
+    "totalAmount": 3220.00
+  }
+}
+```
+
+---
+
+### Assign Delivery Boy to Area
+**Endpoint:** `POST /admin/areas/assign-delivery-boy`
+
+Assigns or unassigns a delivery boy to/from an area. Only one delivery boy can be assigned to an area at a time.
+
+**Request Body:**
+```json
+{
+  "areaId": "area-uuid",
+  "deliveryBoyId": "delivery-boy-uuid"
+}
+```
+
+**To unassign a delivery boy:**
+```json
+{
+  "areaId": "area-uuid",
+  "deliveryBoyId": null
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Delivery boy assigned to area successfully",
+  "data": {
+    "id": "area-uuid",
+    "name": "Zone A",
+    "description": "North area",
+    "deliveryBoyId": "delivery-boy-uuid",
+    "isActive": true
+  }
+}
+```
 
 ---
 
