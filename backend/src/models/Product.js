@@ -18,6 +18,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true
     },
+    category: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      validate: {
+        len: [2, 100]
+      }
+    },
+    imageUrl: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     unit: {
       type: DataTypes.STRING(20),
       allowNull: false,
