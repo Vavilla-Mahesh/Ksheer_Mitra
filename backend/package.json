@@ -8,7 +8,8 @@
     "dev": "nodemon src/server.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
-    "seed": "npx sequelize-cli db:seed:all"
+    "seed": "node seed.js",
+    "setup": "npm install && node seed.js"
   },
   "keywords": ["milk-delivery", "whatsapp", "automation"],
   "author": "",
