@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'products/product_list_screen.dart';
+import 'customers/customer_list_screen.dart';
+import 'invoices/invoice_list_screen.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -16,11 +18,11 @@ class _AdminHomeState extends State<AdminHome> {
 
   final List<Widget> _screens = [
     const DashboardScreen(),
-    const Center(child: Text('Customers - Coming Soon')),
+    const CustomerListScreen(),
     const Center(child: Text('Delivery Boys - Coming Soon')),
     const ProductListScreen(),
     const Center(child: Text('Areas & Map - Coming Soon')),
-    const Center(child: Text('Invoices - Coming Soon')),
+    const InvoiceListScreen(),
     const Center(child: Text('Notifications - Coming Soon')),
     const Center(child: Text('Reports - Coming Soon')),
   ];
