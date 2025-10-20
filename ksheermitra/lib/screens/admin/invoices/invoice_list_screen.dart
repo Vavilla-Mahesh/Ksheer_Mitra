@@ -149,19 +149,19 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> with SingleTicker
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
-                            value: 'verify',
-                            child: Row(
-                              children: [
-                                Icon(Icons.check_circle),
-                                SizedBox(width: 8),
-                                Text('Verify'),
-                              ],
+                          if (!invoice.isVerified)
+                            const PopupMenuItem(
+                              value: 'verify',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.check_circle),
+                                  SizedBox(width: 8),
+                                  Text('Verify'),
+                                ],
+                              ),
                             ),
-                          ),
                         ],
                       ),
-                      onTap: () => _viewInvoiceDetails(invoice.id),
                     ),
                   );
                 },
@@ -286,16 +286,17 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> with SingleTicker
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
-                            value: 'record_payment',
-                            child: Row(
-                              children: [
-                                Icon(Icons.payment),
-                                SizedBox(width: 8),
-                                Text('Record Payment'),
-                              ],
+                          if (!invoice.isPaid)
+                            const PopupMenuItem(
+                              value: 'record_payment',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.payment),
+                                  SizedBox(width: 8),
+                                  Text('Record Payment'),
+                                ],
+                              ),
                             ),
-                          ),
                           const PopupMenuItem(
                             value: 'resend',
                             child: Row(
@@ -308,7 +309,6 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> with SingleTicker
                           ),
                         ],
                       ),
-                      onTap: () => _viewInvoiceDetails(invoice.id),
                     ),
                   );
                 },
@@ -350,7 +350,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> with SingleTicker
   }
 
   void _viewInvoiceDetails(String invoiceId) {
-    UIHelpers.showInfoSnackBar(context, 'Invoice details view coming soon');
+    // TODO: Navigate to invoice details screen when implemented
+    // For now, we don't provide false expectations by showing incomplete functionality
   }
 
   Future<void> _viewInvoicePdf(String invoiceId) async {
@@ -358,7 +359,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> with SingleTicker
     final pdfUrl = await provider.getInvoicePdfUrl(invoiceId);
     
     if (pdfUrl != null && mounted) {
-      UIHelpers.showInfoSnackBar(context, 'PDF URL: $pdfUrl\nPDF viewer coming soon');
+      UIHelpers.showInfoSnackBar(context, 'PDF viewer will be available soon. Invoice has been generated successfully.');
+      // TODO: Implement PDF viewer using printing package or external viewer
+      // final file = await _downloadPdf(pdfUrl);
+      // await Printing.layoutPdf(onLayout: (_) => file.readAsBytes());
+    } else if (mounted) {
+      UIHelpers.showErrorSnackBar(context, 'Unable to load invoice PDF. Please try again.');
     }
   }
 
@@ -380,8 +386,25 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> with SingleTicker
     }
   }
 
-  void _recordPayment(String invoiceId) {
-    UIHelpers.showInfoSnackBar(context, 'Payment recording coming soon');
+  Future<void> _recordPayment(String invoiceId) async {
+    // TODO: Implement payment recording form
+    // For now, show a proper dialog explaining the feature is coming
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Record Payment'),
+        content: const Text(
+          'Payment recording feature will be available in the next update. '
+          'You can currently verify invoices and track payment status.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _resendInvoice(String invoiceId) async {
