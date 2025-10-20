@@ -46,11 +46,17 @@ dependencies:
   # Image Picker
   image_picker: ^1.0.5
   
+  # File Picker
+  file_picker: ^6.1.1
+  
   # QR Code Scanner (for admin)
   qr_code_scanner: ^1.0.1
   
   # Pin Code Input
   pinput: ^3.0.1
+  
+  # CSV Export
+  csv: ^5.1.1
 
 dev_dependencies:
   flutter_test:
