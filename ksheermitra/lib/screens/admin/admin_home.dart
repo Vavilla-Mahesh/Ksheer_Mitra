@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'products/product_list_screen.dart';
+import 'customers/customer_list_screen.dart';
+import 'delivery_boys/delivery_boy_list_screen.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -20,8 +22,8 @@ class _AdminHomeState extends State<AdminHome> {
 
     final screens = [
       const DashboardScreen(),
-      _buildCustomersTab(),
-      _buildDeliveryBoysTab(),
+      const CustomerListScreen(),
+      const DeliveryBoyListScreen(),
       const ProductListScreen(),
       _buildMoreTab(),
     ];
@@ -119,47 +121,9 @@ class _AdminHomeState extends State<AdminHome> {
     }
   }
 
-  Widget _buildCustomersTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.people, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          const Text(
-            'Customer Management',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coming soon',
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildDeliveryBoysTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.delivery_dining, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          const Text(
-            'Delivery Boy Management',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coming soon',
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
+
+
 
   Widget _buildMoreTab() {
     return ListView(
