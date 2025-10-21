@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../models/area.dart';
 import '../models/delivery.dart';
 import '../models/invoice.dart';
@@ -11,8 +12,33 @@ class AdminApiService {
 
   // Dashboard
   Future<DashboardStats> getDashboardStats() async {
-    final response = await _apiService.get('/admin/dashboard/stats');
-    return DashboardStats.fromJson(response['data']);
+    // Note: This endpoint is not yet implemented in the backend.
+    // The backend needs to add: GET /admin/dashboard/stats
+    // For now, we'll try to call it, but if it fails, return empty stats
+    try {
+      final response = await _apiService.get('/admin/dashboard/stats');
+      return DashboardStats.fromJson(response['data']);
+    } catch (e) {
+      // If endpoint doesn't exist, return zero stats
+      // This allows the UI to work while waiting for backend implementation
+      debugPrint('Dashboard stats endpoint not implemented yet: $e');
+      return DashboardStats.fromJson({
+        'totalCustomers': 0,
+        'activeCustomers': 0,
+        'totalDeliveryBoys': 0,
+        'activeDeliveryBoys': 0,
+        'todaysDeliveries': 0,
+        'todaysPending': 0,
+        'todaysDelivered': 0,
+        'todaysMissed': 0,
+        'todaysRevenue': 0,
+        'activeSubscriptions': 0,
+        'totalProducts': 0,
+        'totalAreas': 0,
+        'pendingPayments': 0,
+        'collectedPayments': 0,
+      });
+    }
   }
 
   // Customer Management

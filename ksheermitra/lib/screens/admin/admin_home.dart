@@ -5,6 +5,8 @@ import 'dashboard/dashboard_screen.dart';
 import 'products/product_list_screen.dart';
 import 'customers/customer_list_screen.dart';
 import 'delivery_boys/delivery_boy_list_screen.dart';
+import 'areas/area_list_screen.dart';
+import 'invoices/invoice_list_screen.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -143,7 +145,12 @@ class _AdminHomeState extends State<AdminHome> {
                 subtitle: const Text('Manage delivery areas'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
-                  // Navigate to area management
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AreaListScreen(),
+                    ),
+                  );
                 },
               ),
               const Divider(height: 1),
@@ -153,7 +160,12 @@ class _AdminHomeState extends State<AdminHome> {
                 subtitle: const Text('View and manage invoices'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
-                  // Navigate to invoices
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const InvoiceListScreen(),
+                    ),
+                  );
                 },
               ),
               const Divider(height: 1),
