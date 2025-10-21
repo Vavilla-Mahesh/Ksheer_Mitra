@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'dashboard/dashboard_screen.dart';
+import 'products/product_list_screen.dart';
+import 'customers/customer_list_screen.dart';
+import 'delivery_boys/delivery_boy_list_screen.dart';
+import 'areas/area_list_screen.dart';
+import 'invoices/invoice_list_screen.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -16,16 +22,50 @@ class _AdminHomeState extends State<AdminHome> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
+    final screens = [
+      const DashboardScreen(),
+      const CustomerListScreen(),
+      const DeliveryBoyListScreen(),
+      const ProductListScreen(),
+      _buildMoreTab(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: Text(_getTitle()),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {
+              // Navigate to notifications
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              await authProvider.logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacementNamed('/login');
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Logout'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed == true && context.mounted) {
+                await authProvider.logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacementNamed('/login');
+                }
               }
             },
           ),
@@ -33,12 +73,7 @@ class _AdminHomeState extends State<AdminHome> {
       ),
       body: IndexedStack(
         index: _currentIndex,
-        children: [
-          _buildDashboardTab(),
-          _buildCustomersTab(),
-          _buildDeliveryBoysTab(),
-          _buildProductsTab(),
-        ],
+        children: screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -56,156 +91,162 @@ class _AdminHomeState extends State<AdminHome> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.delivery_dining),
-            label: 'Delivery Boys',
+            label: 'Delivery',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.inventory),
             label: 'Products',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.more_horiz),
+            label: 'More',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDashboardTab() {
-    return SingleChildScrollView(
+  String _getTitle() {
+    switch (_currentIndex) {
+      case 0:
+        return 'Dashboard';
+      case 1:
+        return 'Customers';
+      case 2:
+        return 'Delivery Boys';
+      case 3:
+        return 'Products';
+      case 4:
+        return 'More';
+      default:
+        return 'Admin';
+    }
+  }
+
+
+
+
+
+  Widget _buildMoreTab() {
+    return ListView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Overview',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
+      children: [
+        const Text(
+          'Management',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Column(
             children: [
-              _buildStatCard('Total Customers', '0', Icons.people, Colors.blue),
-              _buildStatCard('Delivery Boys', '0', Icons.delivery_dining, Colors.green),
-              _buildStatCard('Active Subscriptions', '0', Icons.subscriptions, Colors.orange),
-              _buildStatCard('Today\'s Deliveries', '0', Icons.local_shipping, Colors.purple),
+              ListTile(
+                leading: const Icon(Icons.map, color: Colors.purple),
+                title: const Text('Area Management'),
+                subtitle: const Text('Manage delivery areas'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AreaListScreen(),
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.receipt_long, color: Colors.blue),
+                title: const Text('Invoices'),
+                subtitle: const Text('View and manage invoices'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const InvoiceListScreen(),
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.analytics, color: Colors.orange),
+                title: const Text('Reports'),
+                subtitle: const Text('View analytics and reports'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  // Navigate to reports
+                },
+              ),
             ],
           ),
-          const SizedBox(height: 24),
-          const Text(
-            'Quick Actions',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.person_add),
-              title: const Text('Add Customer'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {},
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.add_business),
-              title: const Text('Add Delivery Boy'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {},
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.add_box),
-              title: const Text('Add Product'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {},
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.map),
-              title: const Text('View Customer Map'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {},
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.receipt_long),
-              title: const Text('View Invoices'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {},
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: color),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14),
-            ),
-          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCustomersTab() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.people, size: 80, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('Customers List', style: TextStyle(fontSize: 18)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeliveryBoysTab() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.delivery_dining, size: 80, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('Delivery Boys List', style: TextStyle(fontSize: 18)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductsTab() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inventory, size: 80, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('Products List', style: TextStyle(fontSize: 18)),
-        ],
-      ),
+        const SizedBox(height: 24),
+        const Text(
+          'Communication',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.message, color: Colors.green),
+                title: const Text('Send Notification'),
+                subtitle: const Text('Send WhatsApp messages'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  // Navigate to notifications
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.history, color: Colors.teal),
+                title: const Text('Message History'),
+                subtitle: const Text('View sent messages'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  // Navigate to message history
+                },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          'Settings',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.settings, color: Colors.grey),
+                title: const Text('App Settings'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  // Navigate to settings
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.info, color: Colors.blue),
+                title: const Text('About'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  showAboutDialog(
+                    context: context,
+                    applicationName: 'Ksheermitra',
+                    applicationVersion: '1.0.0',
+                    applicationIcon: const Icon(Icons.local_drink, size: 48),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
