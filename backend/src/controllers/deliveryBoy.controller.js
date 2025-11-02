@@ -155,6 +155,38 @@ class DeliveryBoyController {
       next(error);
     }
   }
+
+  async updateLocation(req, res, next) {
+    try {
+      const deliveryBoyId = req.user.id;
+      const { latitude, longitude } = req.body;
+
+      const deliveryBoy = await db.User.findByPk(deliveryBoyId);
+      
+      if (!deliveryBoy || deliveryBoy.role !== 'delivery_boy') {
+        return res.status(404).json({
+          success: false,
+          message: 'Delivery boy not found'
+        });
+      }
+
+      await deliveryBoy.update({ latitude, longitude });
+
+      logger.info(`Location updated for delivery boy ${deliveryBoyId}`);
+
+      res.status(200).json({
+        success: true,
+        message: 'Location updated successfully',
+        data: {
+          latitude,
+          longitude
+        }
+      });
+    } catch (error) {
+      logger.error('Error updating delivery boy location:', error);
+      next(error);
+    }
+  }
 }
 
 module.exports = new DeliveryBoyController();

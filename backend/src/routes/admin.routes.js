@@ -14,6 +14,8 @@ router.get('/customers/map', adminController.getCustomersWithLocations);
 
 router.get('/delivery-boys', adminController.getDeliveryBoys);
 
+router.get('/delivery-boys/map', adminController.getDeliveryBoysWithLocations);
+
 router.post(
   '/delivery-boys',
   [

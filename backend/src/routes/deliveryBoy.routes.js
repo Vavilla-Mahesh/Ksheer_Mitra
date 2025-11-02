@@ -34,4 +34,14 @@ router.post(
   deliveryBoyController.generateDailyInvoice
 );
 
+router.put(
+  '/location',
+  [
+    body('latitude').notEmpty().isDecimal().withMessage('Valid latitude is required'),
+    body('longitude').notEmpty().isDecimal().withMessage('Valid longitude is required'),
+    validate
+  ],
+  deliveryBoyController.updateLocation
+);
+
 module.exports = router;

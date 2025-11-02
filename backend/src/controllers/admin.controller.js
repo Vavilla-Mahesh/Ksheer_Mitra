@@ -105,6 +105,33 @@ class AdminController {
     }
   }
 
+  async getDeliveryBoysWithLocations(req, res, next) {
+    try {
+      const deliveryBoys = await db.User.findAll({
+        where: {
+          role: 'delivery_boy',
+          isActive: true,
+          latitude: { [db.Sequelize.Op.ne]: null },
+          longitude: { [db.Sequelize.Op.ne]: null }
+        },
+        attributes: ['id', 'name', 'phone', 'address', 'latitude', 'longitude'],
+        include: [{
+          model: db.Area,
+          as: 'area',
+          attributes: ['id', 'name']
+        }]
+      });
+
+      res.status(200).json({
+        success: true,
+        data: deliveryBoys
+      });
+    } catch (error) {
+      logger.error('Error getting delivery boys with locations:', error);
+      next(error);
+    }
+  }
+
   async createDeliveryBoy(req, res, next) {
     try {
       const { name, phone, email, address, latitude, longitude } = req.body;
