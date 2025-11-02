@@ -74,4 +74,6 @@ router.get('/deliveries', customerController.getDeliveryHistory);
 
 router.get('/invoices', customerController.getInvoices);
 
+router.get('/monthly-breakdown', customerController.getMonthlyBreakdown);
+
 module.exports = router;

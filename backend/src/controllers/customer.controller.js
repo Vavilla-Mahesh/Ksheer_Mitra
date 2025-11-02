@@ -233,6 +233,85 @@ class CustomerController {
       next(error);
     }
   }
+
+  async getMonthlyBreakdown(req, res, next) {
+    try {
+      const customerId = req.user.id;
+      const { year, month } = req.query;
+      
+      const currentDate = new Date();
+      const targetYear = year ? parseInt(year) : currentDate.getFullYear();
+      const targetMonth = month ? parseInt(month) : currentDate.getMonth() + 1;
+
+      const moment = require('moment');
+      const periodStart = moment({ year: targetYear, month: targetMonth - 1, day: 1 }).format('YYYY-MM-DD');
+      const periodEnd = moment(periodStart).endOf('month').format('YYYY-MM-DD');
+
+      // Get all deliveries for the month (both delivered and pending)
+      const deliveries = await db.Delivery.findAll({
+        where: {
+          customerId,
+          deliveryDate: {
+            [db.Sequelize.Op.between]: [periodStart, periodEnd]
+          },
+          status: {
+            [db.Sequelize.Op.in]: ['delivered', 'pending']
+          }
+        },
+        include: [
+          {
+            model: db.Product,
+            as: 'product',
+            attributes: ['id', 'name', 'unit', 'pricePerUnit']
+          }
+        ],
+        order: [['deliveryDate', 'ASC']]
+      });
+
+      const breakdown = {
+        year: targetYear,
+        month: targetMonth,
+        periodStart,
+        periodEnd,
+        deliveredAmount: 0,
+        pendingAmount: 0,
+        totalAmount: 0,
+        deliveredCount: 0,
+        pendingCount: 0,
+        deliveries: []
+      };
+
+      deliveries.forEach(delivery => {
+        const amount = parseFloat(delivery.amount);
+        breakdown.deliveries.push({
+          date: delivery.deliveryDate,
+          productName: delivery.product.name,
+          quantity: delivery.quantity,
+          unit: delivery.product.unit,
+          amount: amount,
+          status: delivery.status
+        });
+
+        if (delivery.status === 'delivered') {
+          breakdown.deliveredAmount += amount;
+          breakdown.deliveredCount++;
+        } else if (delivery.status === 'pending') {
+          breakdown.pendingAmount += amount;
+          breakdown.pendingCount++;
+        }
+      });
+
+      breakdown.totalAmount = breakdown.deliveredAmount + breakdown.pendingAmount;
+
+      res.status(200).json({
+        success: true,
+        data: breakdown
+      });
+    } catch (error) {
+      logger.error('Error getting monthly breakdown:', error);
+      next(error);
+    }
+  }
 }
 
 module.exports = new CustomerController();
