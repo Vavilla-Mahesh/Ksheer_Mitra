@@ -282,6 +282,45 @@ All customer endpoints require authentication with `customer` role.
 
 ---
 
+### Get Monthly Breakdown
+Get monthly breakdown of deliveries including both delivered and pending amounts.
+
+**Endpoint:** `GET /customer/monthly-breakdown`
+
+**Query Parameters:**
+- `year` (optional): Year (defaults to current year)
+- `month` (optional): Month (1-12, defaults to current month)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "year": 2024,
+    "month": 1,
+    "periodStart": "2024-01-01",
+    "periodEnd": "2024-01-31",
+    "deliveredAmount": 1200.00,
+    "pendingAmount": 600.00,
+    "totalAmount": 1800.00,
+    "deliveredCount": 20,
+    "pendingCount": 10,
+    "deliveries": [
+      {
+        "date": "2024-01-01",
+        "productName": "Full Cream Milk",
+        "quantity": 1.0,
+        "unit": "liter",
+        "amount": 60.00,
+        "status": "delivered"
+      }
+    ]
+  }
+}
+```
+
+---
+
 ## Delivery Boy Endpoints
 
 All delivery boy endpoints require authentication with `delivery_boy` role.
@@ -410,6 +449,33 @@ All delivery boy endpoints require authentication with `delivery_boy` role.
 
 ---
 
+### Update Delivery Boy Location
+Update current GPS location of the delivery boy for map tracking.
+
+**Endpoint:** `PUT /delivery/location`
+
+**Request Body:**
+```json
+{
+  "latitude": "12.9716",
+  "longitude": "77.5946"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Location updated successfully",
+  "data": {
+    "latitude": "12.9716",
+    "longitude": "77.5946"
+  }
+}
+```
+
+---
+
 ## Admin Endpoints
 
 All admin endpoints require authentication with `admin` role.
@@ -464,10 +530,60 @@ All admin endpoints require authentication with `admin` role.
 
 Returns all customers with GPS coordinates for map view.
 
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "customer-uuid",
+      "name": "Customer Name",
+      "phone": "+919876543210",
+      "address": "123 Main St",
+      "latitude": "12.9716",
+      "longitude": "77.5946",
+      "areaId": "area-uuid",
+      "area": {
+        "id": "area-uuid",
+        "name": "Zone A"
+      }
+    }
+  ]
+}
+```
+
 ---
 
 ### List Delivery Boys
 **Endpoint:** `GET /admin/delivery-boys`
+
+---
+
+### Get Delivery Boys with Locations
+**Endpoint:** `GET /admin/delivery-boys/map`
+
+Returns all delivery boys with GPS coordinates for map view and tracking.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "delivery-boy-uuid",
+      "name": "Delivery Boy Name",
+      "phone": "+919876543211",
+      "address": "456 Oak St",
+      "latitude": "12.9800",
+      "longitude": "77.6000",
+      "area": {
+        "id": "area-uuid",
+        "name": "Zone B"
+      }
+    }
+  ]
+}
+```
 
 ---
 
