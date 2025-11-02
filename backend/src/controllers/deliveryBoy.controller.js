@@ -178,8 +178,8 @@ class DeliveryBoyController {
         success: true,
         message: 'Location updated successfully',
         data: {
-          latitude: deliveryBoy.latitude,
-          longitude: deliveryBoy.longitude
+          latitude,
+          longitude
         }
       });
     } catch (error) {

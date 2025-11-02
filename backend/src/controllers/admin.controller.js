@@ -118,7 +118,6 @@ class AdminController {
         include: [{
           model: db.Area,
           as: 'area',
-          foreignKey: 'deliveryBoyId',
           attributes: ['id', 'name']
         }]
       });

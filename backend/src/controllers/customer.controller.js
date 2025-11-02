@@ -3,6 +3,7 @@ const deliveryService = require('../services/delivery.service');
 const invoiceService = require('../services/invoice.service');
 const db = require('../config/db');
 const logger = require('../utils/logger');
+const moment = require('moment');
 
 class CustomerController {
   async getProfile(req, res, next) {
@@ -243,7 +244,6 @@ class CustomerController {
       const targetYear = year ? parseInt(year) : currentDate.getFullYear();
       const targetMonth = month ? parseInt(month) : currentDate.getMonth() + 1;
 
-      const moment = require('moment');
       const periodStart = moment({ year: targetYear, month: targetMonth - 1, day: 1 }).format('YYYY-MM-DD');
       const periodEnd = moment(periodStart).endOf('month').format('YYYY-MM-DD');
 
